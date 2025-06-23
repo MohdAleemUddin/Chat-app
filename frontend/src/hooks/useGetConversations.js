@@ -7,10 +7,12 @@ const useGetConversations = () => {
   const [conversations, setConversations] = useState([]);
 
   useEffect(() => {
-    const getConversations = async () => {
+     const getConversations = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/api/users`);
+        const res = await fetch(`${API_BASE}/api/users`, {
+          credentials: "include", 
+        });
         const data = await res.json();
         if (data.error) {
           throw new Error(data.error);
