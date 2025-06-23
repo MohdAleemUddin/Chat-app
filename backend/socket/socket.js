@@ -65,16 +65,24 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
+import cors from "cors"; 
 
 const app = express();
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://chat-app-aleem.netlify.app",
+];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:3000", // For development
-      "https://chat-app-aleem.netlify.app", // ✅ Replace with your actual Netlify URL
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
