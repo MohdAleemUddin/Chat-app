@@ -63,7 +63,7 @@ export const SocketContextProvider = ({ children }) => {
       //   },
       // });
       console.log("Connecting to socket with userId:", authUser._id); // Log userId to ensure it's passed correctly
-      const newSocket = io("http://localhost:5000", {
+      const newSocket = io("https://chat-app-backend-ic42.onrender.com", {
         query: {
           userId: authUser._id,
         },
