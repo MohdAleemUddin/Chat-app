@@ -2,7 +2,7 @@
 A MERN stack chat application using Socket.IO, React, Node.js, Express, MongoDB.
 
 🔗 Live Site: https://chat-app-aleem.netlify.app/
-🔗 Backend API: [Backend Link](#)
+🔗 Backend API: https://chat-app-backend-ic42.onrender.com
 
 ## Features
 - Signup/Login
