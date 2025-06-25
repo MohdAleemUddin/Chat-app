@@ -63,7 +63,7 @@ import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 
-// ✅ Send Message Controller
+// ✅ Send Message
 export const sendMessage = async (req, res) => {
   try {
     const { message } = req.body;
@@ -81,18 +81,16 @@ export const sendMessage = async (req, res) => {
     }
 
     const newMessage = new Message({ senderId, receiverId, message });
-
     conversation.messages.push(newMessage._id);
 
     await Promise.all([conversation.save(), newMessage.save()]);
-
-    const receiverSocketId = getReceiverSocketId(receiverId);
 
     const messageToSend = {
       ...newMessage.toObject(),
       conversationId: conversation._id.toString(),
     };
 
+    const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", messageToSend);
     }
@@ -104,6 +102,7 @@ export const sendMessage = async (req, res) => {
   }
 };
 
+// ✅ Get Messages
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;

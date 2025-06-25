@@ -32,13 +32,14 @@ const useSendMessage = () => {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      // ✅ Only add message if it belongs to the selected conversation
+      // ✅ Append only if the message belongs to the selected conversation
       if (data.conversationId === selectedConversation._id) {
         setMessages((prev) => [...prev, data]);
       } else {
-        console.warn("Received message does not match selected conversation.");
+        console.warn(
+          "Received message doesn't belong to selected conversation"
+        );
       }
-
     } catch (error) {
       toast.error(error.message);
     } finally {
