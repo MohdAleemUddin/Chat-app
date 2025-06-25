@@ -4,35 +4,44 @@ import toast from "react-hot-toast";
 const API_BASE = import.meta.env.VITE_API_URL;
 
 const useSendMessage = () => {
-  const [loading, setLoading] = useState(false);
-  const { messages, setMessages, selectedConversation } = useConversation();
+	const [loading, setLoading] = useState(false);
+	const { messages, setMessages, selectedConversation } = useConversation();
 
-  const sendMessage = async (message) => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/messages/send/${selectedConversation._id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ message }),
-          credentials: "include",
-        }
-      );
+	const sendMessage = async (message) => {
+		setLoading(true);
 
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
+		const token = JSON.parse(localStorage.getItem("chat-user"))?.token;
+		if (!token) {
+			toast.error("Authentication token missing");
+			setLoading(false);
+			return;
+		}
 
-      setMessages((prevMessages) => [...prevMessages, data]);
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+		try {
+			const res = await fetch(
+				`${API_BASE}/api/messages/send/${selectedConversation._id}`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ message }),
+				}
+			);
 
-  return { sendMessage, loading };
+			const data = await res.json();
+			if (data.error) throw new Error(data.error);
+
+			setMessages((prevMessages) => [...prevMessages, data]);
+		} catch (error) {
+			toast.error(error.message);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return { sendMessage, loading };
 };
+
 export default useSendMessage;

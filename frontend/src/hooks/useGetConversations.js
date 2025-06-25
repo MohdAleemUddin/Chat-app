@@ -3,46 +3,43 @@ import toast from "react-hot-toast";
 const API_BASE = import.meta.env.VITE_API_URL;
 
 const useGetConversations = () => {
-  const [loading, setLoading] = useState(false);
-  const [conversations, setConversations] = useState([]);
+	const [loading, setLoading] = useState(false);
+	const [conversations, setConversations] = useState([]);
 
-  useEffect(() => {
-    const getConversations = async () => {
-      const storedUser = localStorage.getItem("chat-user");
-      const token = storedUser ? JSON.parse(storedUser).token : null;
+	useEffect(() => {
+		const getConversations = async () => {
+			const token = JSON.parse(localStorage.getItem("chat-user"))?.token;
 
-      if (!token) {
-        toast.error("Authentication token missing");
-        return;
-      }
+			if (!token) {
+				toast.error("Authentication token missing");
+				return;
+			}
 
-      setLoading(true);
+			setLoading(true);
+			try {
+				const res = await fetch(`${API_BASE}/api/users`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
 
-      try {
-        const res = await fetch(`${API_BASE}/api/users`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+				const data = await res.json();
+				if (data.error) {
+					throw new Error(data.error);
+				}
 
-        const data = await res.json();
+				setConversations(data);
+			} catch (error) {
+				toast.error(error.message || "Failed to fetch conversations");
+			} finally {
+				setLoading(false);
+			}
+		};
 
-        if (data.error) {
-          throw new Error(data.error);
-        }
+		getConversations();
+	}, []);
 
-        setConversations(data);
-      } catch (error) {
-        toast.error(error.message || "Failed to fetch conversations");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getConversations();
-  }, []);
-
-  return { loading, conversations };
+	return { loading, conversations };
 };
 
 export default useGetConversations;
