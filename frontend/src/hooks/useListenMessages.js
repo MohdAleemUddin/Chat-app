@@ -13,11 +13,9 @@ const useListenMessages = () => {
     const handleNewMessage = (newMessage) => {
       if (newMessage.conversationId !== selectedConversation?._id) return;
 
-      // ✅ Play sound
       const sound = new Audio(notificationSound);
       sound.play().catch((err) => console.log("Sound error:", err));
 
-      // ✅ Append message using functional update (correct way)
       setMessages((prev) => [...prev, { ...newMessage, shouldShake: true }]);
     };
 
