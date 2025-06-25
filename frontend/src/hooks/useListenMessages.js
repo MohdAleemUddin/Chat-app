@@ -11,7 +11,7 @@ const useListenMessages = () => {
     if (!socket) return;
 
     const handleNewMessage = (newMessage) => {
-      if (newMessage.conversationId !== selectedConversation?._id) return;
+  if (newMessage.conversationId !== selectedConversation?._id?.toString()) return;
 
       const sound = new Audio(notificationSound);
       sound.play().catch((err) => console.log("Sound error:", err));
