@@ -17,19 +17,28 @@ const useSendMessage = () => {
         return;
       }
 
-      const res = await fetch(`${API_BASE}/api/messages/send/${selectedConversation._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ message }),
-      });
+      const res = await fetch(
+        `${API_BASE}/api/messages/send/${selectedConversation._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ message }),
+        }
+      );
 
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      setMessages((prev) => [...prev, data]);
+      // ✅ Only add message if it belongs to the selected conversation
+      if (data.conversationId === selectedConversation._id) {
+        setMessages((prev) => [...prev, data]);
+      } else {
+        console.warn("Received message does not match selected conversation.");
+      }
+
     } catch (error) {
       toast.error(error.message);
     } finally {
