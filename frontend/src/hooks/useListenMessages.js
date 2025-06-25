@@ -28,7 +28,6 @@
 // };
 
 // export default useListenMessages;
-
 import { useEffect } from "react";
 import { useSocketContext } from "../context/SocketContext";
 import useConversation from "../zustand/useConversation";
@@ -43,13 +42,20 @@ const useListenMessages = () => {
         const { selectedConversation, setMessages, messages } =
           useConversation.getState();
 
-        // Only update if message belongs to currently open conversation
         if (selectedConversation?._id === newMessage.conversationId) {
           const sound = new Audio(notificationSound);
           sound.play().catch((err) => console.log("Audio Play Error: ", err));
 
           newMessage.shouldShake = true;
-          setMessages([...messages, newMessage]);
+
+          // ✅ Use functional update to avoid stale state
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+          // 🔍 Debug log to verify re-render
+          console.log("Updated messages in useListenMessages:", [
+            ...messages,
+            newMessage,
+          ]);
         }
       });
     }

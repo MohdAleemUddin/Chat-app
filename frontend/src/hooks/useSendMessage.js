@@ -4,44 +4,41 @@ import toast from "react-hot-toast";
 const API_BASE = import.meta.env.VITE_API_URL;
 
 const useSendMessage = () => {
-	const [loading, setLoading] = useState(false);
-	const { messages, setMessages, selectedConversation } = useConversation();
+  const [loading, setLoading] = useState(false);
+  const { setMessages, selectedConversation } = useConversation();
 
-	const sendMessage = async (message) => {
-		setLoading(true);
+  const sendMessage = async (message) => {
+    setLoading(true);
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("chat-user"));
+      const token = storedUser?.token;
 
-		const token = JSON.parse(localStorage.getItem("chat-user"))?.token;
-		if (!token) {
-			toast.error("Authentication token missing");
-			setLoading(false);
-			return;
-		}
+      const res = await fetch(
+        `${API_BASE}/api/messages/send/${selectedConversation._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ message }),
+        }
+      );
 
-		try {
-			const res = await fetch(
-				`${API_BASE}/api/messages/send/${selectedConversation._id}`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-					body: JSON.stringify({ message }),
-				}
-			);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
 
-			const data = await res.json();
-			if (data.error) throw new Error(data.error);
+      setMessages((prevMessages) => [...prevMessages, data]);
 
-			setMessages((prevMessages) => [...prevMessages, data]);
-		} catch (error) {
-			toast.error(error.message);
-		} finally {
-			setLoading(false);
-		}
-	};
+      console.log("New message added by sender:", data);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-	return { sendMessage, loading };
+  return { sendMessage, loading };
 };
 
 export default useSendMessage;
