@@ -85,15 +85,19 @@ export const sendMessage = async (req, res) => {
 
     await Promise.all([conversation.save(), newMessage.save()]);
 
+    const receiverSocketId = getReceiverSocketId(receiverId);
     const messageToSend = {
       ...newMessage.toObject(),
       conversationId: conversation._id.toString(),
     };
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
+    // ✅ emit to receiver if online
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", messageToSend);
     }
+
+    // ✅ emit to sender too (so their UI updates)
+    io.to(senderId.toString()).emit("newMessage", messageToSend);
 
     res.status(201).json(messageToSend);
   } catch (error) {
