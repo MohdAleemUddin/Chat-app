@@ -11,10 +11,19 @@ const useListenMessages = () => {
     if (!socket) return;
 
     const handleNewMessage = (newMessage) => {
-  if (newMessage.conversationId !== selectedConversation?._id?.toString()) return;
+      const incomingId = String(newMessage.conversationId);
+      const selectedId = String(selectedConversation?._id);
+
+      console.log("🟡 Incoming message for conversationId:", incomingId);
+      console.log("🟢 Currently selected conversationId:", selectedId);
+
+      if (incomingId !== selectedId) {
+        console.warn("⚠️ Message skipped. Doesn't belong to selected conversation.");
+        return;
+      }
 
       const sound = new Audio(notificationSound);
-      sound.play().catch((err) => console.log("Sound error:", err));
+      sound.play().catch((err) => console.log("🔇 Sound error:", err));
 
       setMessages((prev) => [...prev, { ...newMessage, shouldShake: true }]);
     };
