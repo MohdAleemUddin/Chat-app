@@ -3,7 +3,8 @@ import { useSocketContext } from "../context/SocketContext";
 import useConversation from "../zustand/useConversation";
 import notificationSound from "../assets/sounds/notification.mp3";
 import toast from "react-hot-toast";
-import { getUserNameFromId } from "../utils/userHelpers"; // Optional helper if you implement it
+
+
 
 const useListenMessages = () => {
   const { socket } = useSocketContext();
