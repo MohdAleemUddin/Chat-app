@@ -8,7 +8,12 @@ const useListenMessages = () => {
   const { selectedConversation, setMessages } = useConversation();
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !selectedConversation?._id) {
+      console.warn(
+        "🔁 useListenMessages skipped: Socket or selectedConversation._id not ready"
+      );
+      return;
+    }
 
     const handleNewMessage = (newMessage) => {
       const incomingId = String(newMessage.conversationId);
@@ -18,7 +23,9 @@ const useListenMessages = () => {
       console.log("🟢 Currently selected conversationId:", selectedId);
 
       if (incomingId !== selectedId) {
-        console.warn("⚠️ Message skipped. Doesn't belong to selected conversation.");
+        console.warn(
+          "⚠️ Message skipped. Doesn't belong to selected conversation."
+        );
         return;
       }
 
