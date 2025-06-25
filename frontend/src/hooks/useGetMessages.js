@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import useConversation from "../zustand/useConversation";
 import toast from "react-hot-toast";
+
 const API_BASE = import.meta.env.VITE_API_URL;
 
 const useGetMessages = () => {
 	const [loading, setLoading] = useState(false);
-	const { messages, setMessages, selectedConversation } = useConversation();
+	const { setMessages, selectedConversation } = useConversation();
 
 	useEffect(() => {
 		const getMessages = async () => {
@@ -29,14 +30,11 @@ const useGetMessages = () => {
 				const data = await res.json();
 
 				if (data.error) throw new Error(data.error);
-				if (!Array.isArray(data)) {
-					throw new Error("Invalid response format from server");
-				}
+				if (!Array.isArray(data)) throw new Error("Invalid response format");
 
 				setMessages(data);
 			} catch (error) {
 				toast.error(error.message || "Failed to fetch messages");
-				setMessages([]);
 			} finally {
 				setLoading(false);
 			}
@@ -45,7 +43,8 @@ const useGetMessages = () => {
 		if (selectedConversation?._id) getMessages();
 	}, [selectedConversation?._id, setMessages]);
 
-	return { messages, loading };
+	return { loading };
 };
 
 export default useGetMessages;
+
