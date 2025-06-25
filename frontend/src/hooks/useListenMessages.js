@@ -37,30 +37,34 @@ const useListenMessages = () => {
   const { socket } = useSocketContext();
 
   useEffect(() => {
-    if (socket) {
-      socket.on("newMessage", (newMessage) => {
-        const { selectedConversation, setMessages, messages } =
-          useConversation.getState();
+    if (!socket) return;
 
-        if (selectedConversation?._id === newMessage.conversationId) {
-          const sound = new Audio(notificationSound);
-          sound.play().catch((err) => console.log("Audio Play Error: ", err));
+    const handleNewMessage = (newMessage) => {
+      const { selectedConversation, setMessages } = useConversation.getState();
 
-          newMessage.shouldShake = true;
+      // Update only if the message belongs to the currently open conversation
+      if (selectedConversation?._id === newMessage.conversationId) {
+        newMessage.shouldShake = true;
 
-          // ✅ Use functional update to avoid stale state
-          setMessages((prevMessages) => [...prevMessages, newMessage]);
+        // Play notification sound
+        const sound = new Audio(notificationSound);
+        sound.play().catch((err) => console.log("Audio Play Error: ", err));
 
-          // 🔍 Debug log to verify re-render
-          console.log("Updated messages in useListenMessages:", [
-            ...messages,
-            newMessage,
-          ]);
-        }
-      });
-    }
+        // ✅ Update messages with latest state and log
+        setMessages((prevMessages) => {
+          const updated = [...prevMessages, newMessage];
+          console.log("✅ Updated messages in useListenMessages:", updated);
+          return updated;
+        });
+      }
+    };
 
-    return () => socket?.off("newMessage");
+    socket.on("newMessage", handleNewMessage);
+
+    // Clean up the listener on unmount
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
   }, [socket]);
 };
 
