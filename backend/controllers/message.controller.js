@@ -91,14 +91,12 @@ export const sendMessage = async (req, res) => {
       conversationId: conversation._id.toString(),
     };
 
-    // ✅ emit to receiver if online
+    // ✅ Emit only to the receiver if they're online
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", messageToSend);
     }
 
-    // ✅ emit to sender too (so their UI updates)
-    io.to(senderId.toString()).emit("newMessage", messageToSend);
-
+    // ❌ Don't emit to sender — UI already handles that
     res.status(201).json(messageToSend);
   } catch (error) {
     console.log("Error in sendMessage controller:", error.message);
