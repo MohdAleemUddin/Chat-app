@@ -80,23 +80,29 @@ export const sendMessage = async (req, res) => {
       });
     }
 
-    const newMessage = new Message({ senderId, receiverId, message });
+    // ✅ Include conversationId while creating message
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      message,
+      conversationId: conversation._id,
+    });
+
     conversation.messages.push(newMessage._id);
 
     await Promise.all([conversation.save(), newMessage.save()]);
 
     const receiverSocketId = getReceiverSocketId(receiverId);
-    const messageToSend = {
-      ...newMessage.toObject(),
-      conversationId: conversation._id.toString(),
-    };
+    const messageToSend = newMessage.toObject(); // ✅ Already has conversationId
 
-    // ✅ Emit only to the receiver if they're online
+    // ✅ Emit to receiver if online
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", messageToSend);
     }
 
-    // ❌ Don't emit to sender — UI already handles that
+    // ✅ Also emit to sender (important for UI to update immediately)
+    io.to(senderId.toString()).emit("newMessage", messageToSend);
+
     res.status(201).json(messageToSend);
   } catch (error) {
     console.log("Error in sendMessage controller:", error.message);
