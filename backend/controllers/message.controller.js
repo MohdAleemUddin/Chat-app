@@ -59,11 +59,11 @@
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // };
+
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 
-// ✅ Send Message
 export const sendMessage = async (req, res) => {
   try {
     const { message } = req.body;
@@ -80,7 +80,6 @@ export const sendMessage = async (req, res) => {
       });
     }
 
-    // ✅ Include conversationId while creating message
     const newMessage = new Message({
       senderId,
       receiverId,
@@ -93,14 +92,12 @@ export const sendMessage = async (req, res) => {
     await Promise.all([conversation.save(), newMessage.save()]);
 
     const receiverSocketId = getReceiverSocketId(receiverId);
-    const messageToSend = newMessage.toObject(); // ✅ Already has conversationId
+    const messageToSend = newMessage.toObject();
 
-    // ✅ Emit to receiver if online
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", messageToSend);
     }
 
-    // ✅ Also emit to sender (important for UI to update immediately)
     io.to(senderId.toString()).emit("newMessage", messageToSend);
 
     res.status(201).json(messageToSend);
@@ -110,7 +107,6 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-// ✅ Get Messages
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;

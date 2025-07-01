@@ -4,8 +4,6 @@ import useConversation from "../zustand/useConversation";
 import notificationSound from "../assets/sounds/notification.mp3";
 import toast from "react-hot-toast";
 
-
-
 const useListenMessages = () => {
   const { socket } = useSocketContext();
   const { selectedConversation, setMessages, conversations } =
@@ -34,7 +32,6 @@ const useListenMessages = () => {
       } else {
         const senderId = newMessage.senderId;
 
-        // Optional: Try to get sender name from conversation list
         const otherUser = conversations
           ?.find((conv) => conv._id === incomingId)
           ?.participants?.find((p) => p._id !== senderId);

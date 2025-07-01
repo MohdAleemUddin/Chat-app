@@ -32,7 +32,6 @@ const useSendMessage = () => {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      // ✅ Append only if the message belongs to the selected conversation
       if (data.conversationId === selectedConversation._id) {
         setMessages((prev) => [...prev, data]);
       } else {
@@ -49,5 +48,6 @@ const useSendMessage = () => {
 
   return { sendMessage, loading };
 };
+
 
 export default useSendMessage;
